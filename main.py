@@ -3,6 +3,13 @@ import sys
 import time
 import pymysql as sql
 import regex as re
+import inspect
+
+gVerbose = 0
+
+# Print Line Number
+def lineno():
+    return inspect.currentframe().f_back.f_lineno
 
 # Login
 def login(cursor):
@@ -13,6 +20,8 @@ def login(cursor):
     unameMatch = re.match(unamePattern, uname, re.I)
     if(unameMatch):
         sqlquery = "SELECT uname FROM fps.login"
+        if gVerbose:
+            print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
         cursor.execute(sqlquery)
         db_uname_list = []
         li = cursor.fetchall()
@@ -21,6 +30,8 @@ def login(cursor):
         if uname in db_uname_list:
             pwd = input("Enter Password :\t")
             sqlquery = "SELECT password FROM fps.login where uname =\""+str(uname)+"\";"
+            if gVerbose:
+                print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
             cursor.execute(sqlquery)
             dbpwd = cursor.fetchone()
             if pwd == dbpwd[0]:
@@ -54,14 +65,18 @@ def register(cursor):
             register(uname)
         else:
             sqlquery = "INSERT INTO fps.login (uname, password) VALUES(\""+uname+"\", \""+pwd+"\");"
-            print("####>>>>\t",sqlquery)
+            if gVerbose:
+                print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
             cursor.execute(sqlquery)
             cursor.execute("COMMIT;")
             sqlquery = "INSERT INTO fps.fees (uname, exam_fee, lab_fee) VALUES(\""+uname+"\", 0, 0);"
-            print("####>>>>\t",sqlquery)
+            if gVerbose:
+                print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
             cursor.execute(sqlquery)
             cursor.execute("COMMIT;")
             sqlquery = "SELECT password FROM fps.login where uname=\""+str(uname)+"\";"
+            if gVerbose:
+                print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
             cursor.execute(sqlquery)
             dbpwd = cursor.fetchone()
             if pwd == dbpwd[0]:
@@ -80,25 +95,17 @@ def view_fees(cursor, uname):
     print("\n--- Current Fee status ---\n")
     sqlquery = ""
     sqlquery = "SELECT exam_fee FROM fps.fees where uname=\""+str(uname)+"\";"
+    if gVerbose:
+        print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
     cursor.execute(sqlquery)
     dbfees = cursor.fetchone()
     print("\nExam Fees:", dbfees)
     sqlquery = "SELECT lab_fee FROM fps.fees where uname=\""+str(uname)+"\";"
+    if gVerbose:
+        print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
     cursor.execute(sqlquery)
     dbfees = cursor.fetchone()
     print("\nLab Fees:", dbfees)
-    
-    if (Exam Fees <0 or Lab Fees <0):
-
-    def fees_paid(cursor, uname):
-    print("\n--- fees paid ---\n")
-    sqlquery = ""
-    sqlquery = "SELECT Exam Fees FROM fps.fees_paid where uname=\""+str(uname)+"\";"
-    cursor.execute(sqlquery)
-    dbfees_paid = cursor.fetchone()
-    print("\nExam Fees:", dbfees_paid)
-
-
 
 if __name__ == "__main__": 
     print("\n\n-------- Welcome to Fee Payment System! --------\n")
@@ -112,6 +119,10 @@ if __name__ == "__main__":
 
     # Connecting to MySQL DataBase and initializing a cursor to fetch data
     db = sql.connect(sqlsrvr,sqluser,sqlpwd,sqldb)
+    if (db) and (gVerbose):
+        print("\n*** Debug ["+str(lineno())+"]:\t"+"Connected to MySQL"+"\t***\n")
+    if (not db) and (gVerbose):
+        print("\n*** Debug ["+str(lineno())+"]:\t"+"Connected to MySQL"+"\t***\n")
     cursor = db.cursor()
     if choice=="1":
         login(cursor)
