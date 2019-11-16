@@ -100,6 +100,28 @@ def view_fees(cursor, uname):
     cursor.execute(sqlquery)
     dbfees = cursor.fetchone()
     print("\nExam Fees:", dbfees)
+    
+    sqlquery = "SELECT lab_fee FROM fps.fees where uname=\""+str(uname)+"\";"
+    if gVerbose:
+        print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
+    cursor.execute(sqlquery)
+    dbfees = cursor.fetchone()
+    print("\nLab Fees:", dbfees)
+
+    sqlquery = "SELECT lab_fee FROM fps.fees where uname=\""+str(uname)+"\";"
+    if gVerbose:
+        print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
+    cursor.execute(sqlquery)
+    dbfees = cursor.fetchone()
+    print("\nLab Fees:", dbfees)
+
+    sqlquery = "SELECT lab_fee FROM fps.fees where uname=\""+str(uname)+"\";"
+    if gVerbose:
+        print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
+    cursor.execute(sqlquery)
+    dbfees = cursor.fetchone()
+    print("\nLab Fees:", dbfees)
+
     sqlquery = "SELECT lab_fee FROM fps.fees where uname=\""+str(uname)+"\";"
     if gVerbose:
         print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
