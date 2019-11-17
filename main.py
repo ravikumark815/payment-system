@@ -6,7 +6,7 @@ import regex as re
 import inspect
 import datetime
 
-gVerbose = 0
+gVerbose = 1
 gLoggedIn = 0
 
 # Print Line Number
@@ -15,6 +15,7 @@ def lineno():
 
 # Choice
 def choice(db, cursor):
+    global gLoggedIn
     choice = input("\n1. Login\n2. Registration\n3. Exit\n\n")
     if choice=="1":
         login(db, cursor)
@@ -29,6 +30,7 @@ def choice(db, cursor):
         print("Enter a Valid Choice\n")
 
 def choice2(db, cursor, uname):
+    global gLoggedIn
     choice = input("\n1. View Current Fee Status\n2. Pay Fees\n3. View Payments\n4. Logout\n\n")
     if choice=="1":
         view_fees(db, cursor, uname)
@@ -62,6 +64,7 @@ def connect_mysql():
 # Login
 def login(db, cursor):
     print("\n--- Login ---\n")
+    global gLoggedIn
     unamePattern = r"\A\d[A-Z]{2}\d{2}[A-Z]{2}\d{3}"
     uname = input("\nEnter Username (USN/ID) :\t")
     uname = uname.lower()
@@ -101,6 +104,7 @@ def login(db, cursor):
 
 def register(db, cursor):
     print("\n--- Registration ---\n")
+    global gLoggedIn
     unamePattern = r"\A\d[A-Z]{2}\d{2}[A-Z]{2}\d{3}"
     uname = input("Enter Username (USN/ID) :\t")
     uname = uname.lower()
@@ -125,7 +129,7 @@ def register(db, cursor):
                 time.sleep(1)
                 register(db, cursor)
             else:
-                sqlquery = "INSERT INTO fps.login (uname, password) VALUES(\""+uname+"\", \""+pwd+"\");"
+                sqlquery = "INSERT INTO fps.login (uname, password, privilege) VALUES(\""+uname+"\", \""+pwd+"\", \"student\");"
                 if gVerbose:
                     print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
                 cursor.execute(sqlquery)
@@ -154,6 +158,7 @@ def register(db, cursor):
 
 def view_fees(db, cursor, uname):
     print("\n--- Current Fee status ---\n")
+    global gLoggedIn
     sqlquery = ""
     sqlquery = "SELECT exam_fee FROM fps.fees where uname=\""+str(uname)+"\";"
     if gVerbose:
@@ -194,6 +199,7 @@ def view_fees(db, cursor, uname):
     choice2(db, cursor, uname)
 
 def pay_fees(db, cursor, uname):
+    global gLoggedIn
     if(gLoggedIn):
         print("\n--- Pay Fees ---\n")
         choice = input("\n1. Exam Fees\n2. Lab Fees\n3. Placement Fees\n4. Library Fees\n5. Stationary Fee\n6. Club Fees\n\n7.Logout\n\n")
@@ -220,7 +226,7 @@ def pay_fees(db, cursor, uname):
             db.close() 
             exit()
         
-        sqlquery = "SELECT"+str(fee_type)+"FROM fps.fees where uname=\""+str(uname)+"\";"
+        sqlquery = "SELECT "+str(fee_type)+" FROM fps.fees where uname=\""+str(uname)+"\";"
         if gVerbose:
             print("\n*** Debug ["+str(lineno())+"]:\t"+sqlquery+"\t***\n")
         cursor.execute(sqlquery)
@@ -235,8 +241,8 @@ def pay_fees(db, cursor, uname):
         cvv = input("\nEnter your 3 digit CVV number:")
         while not(re.match(r"\d{3}",str(cvv), re.I|re.M)):
             cvv = input("\nEnter valid CVV number:")
-        expiry_date = input("\nEnter expiry date of your card:")
-        while not(re.match(r"\d{0,2}\/\d{4}",str(expiry_date), re.I|re.M)):
+        expiry_date = input("\nEnter expiry date of your card in the format mm/yyyy:")
+        while not(re.match(r"\d{2}\/\d{4}",str(expiry_date), re.I|re.M)):
             expiry_date = input("\nEnter a valid expiry date:")
         now = str(datetime.datetime.now())
         print("\nDo Not Refresh/Cancel while the transaction is being processed\n")
