@@ -5,9 +5,20 @@ import pymysql as sql
 import regex as re
 import inspect
 import datetime
+from flask import Flask, render_template, request
+app = Flask(__name__)
 
 gVerbose = 1
 gLoggedIn = 0
+
+#************** UI STUFF START ************************
+
+@app.route("/")
+@app.route("/home")
+def home():
+    return render_template('index.html')
+
+#************** UI STUFF END ************************
 
 # Print Line Number
 def lineno():
@@ -288,7 +299,8 @@ def pay_fees(db, cursor, uname):
         choice(db, cursor)
 
 if __name__ == "__main__": 
-    print("\n\n-------- Welcome to Fee Payment System! --------\n")
+    app.run(debug=True)
+    # print("\n\n-------- Welcome to Fee Payment System! --------\n")
 
-    db,cursor = connect_mysql()
-    choice(db, cursor)
+    # db,cursor = connect_mysql()
+    # choice(db, cursor)
