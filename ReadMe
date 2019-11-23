@@ -5,6 +5,8 @@ inspect,
 datetime
 flask,
 flask-wtf
+flask-sqlalchemy
+cryptography
 
 To Run flask:
 > Open CMD prompt as administrator
