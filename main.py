@@ -41,11 +41,11 @@ class LoginForm(FlaskForm):
 class Login(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     uname = db.Column(db.String(10), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
+    privilege = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
-        return f"Login('{self.uname}', '{self.image_file}', '{self.password}')"
+        return f"Login('{self.uname}', '{self.password}')"
 
 class Fees(db.Model):
     uname = db.Column(db.String(10), primary_key=True, nullable=False)
