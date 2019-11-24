@@ -153,8 +153,10 @@ def payment():
         db.session.add(fee_entry)
         db.session.commit()
         time.sleep(3)
-        flash(f'Payment Successful.', 'success')
-        return redirect(url_for('home'))
+        flash(f'Payment Successful. Redirecting to Home Page.', 'success')
+    else:
+        flash(f'Payment Failed. Please Try Again.', 'danger')
+    return redirect(url_for('home'))
 
 if __name__ == "__main__": 
     app.run(port=5000, debug=True)
