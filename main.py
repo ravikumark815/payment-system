@@ -2,7 +2,7 @@
 import fps
 from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, url_for, flash, redirect
@@ -38,6 +38,15 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+class PaymentForm(FlaskForm):
+    amount_paid = IntegerField('Amount')
+    card_name = StringField('Card Name')
+    card_number = IntegerField('Card Number')
+    cvv = IntegerField('CVV', validators=[DataRequired(), Length(min=3, max=3)])
+    expiry_month = IntegerField('CVV', validators=[DataRequired(), Length(min=1, max=2)])
+    expiry_year = IntegerField('CVV', validators=[DataRequired(), Length(min=4, max=4)])
+    fee_type = StringField('Fees', validators=[DataRequired()])
+
 class Login(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     uname = db.Column(db.String(10), unique=True, nullable=False)
@@ -61,13 +70,15 @@ class Fees(db.Model):
 
 class Payment(db.Model):
     trans_id = db.Column(db.String(10), primary_key=True, nullable=False)
+    payment_type = db.Column(db.String(30), nullable=False)
     uname = db.Column(db.String(10), unique=True, nullable=False)
     amount_to_be_paid = db.Column(db.Integer())
     amount_paid = db.Column(db.Integer())
     amount_left = db.Column(db.Integer())
     card_number = db.Column(db.Integer())
     cvv = db.Column(db.Integer())
-    expiry_date = db.Column(db.String(5))
+    expiry_month = db.Column(db.Integer())
+    expiry_year = db.Column(db.Integer())
     time_stamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
@@ -101,6 +112,7 @@ def register():
             user = Login(uname=form.username.data, password=hashed_password, privilege="student")
             db.session.add(user)
             db.session.commit()
+            user = Fees(exam_fee=0, lab_fee=0, stationary_fee=0, library_fee=0, placement_fee=0, club_fee=0)
             flash(f'Your account has been created', 'success')
             return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -123,6 +135,26 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('default'))
+
+@app.route("/payment", methods=['GET', 'POST'])
+@login_required
+def payment():
+    form = PaymentForm()
+    if form.validate_on_submit():
+        uname = current_user.uname
+        trans_id = bcrypt.generate_password_hash(str(datetime.utcnow)).decode('utf-8')
+        fee = Fees.query.filter_by(uname=uname)
+        feeType = form.fee_type.data
+        amount_to_be_paid = int(fee.feeType)
+        amount_left = amount_to_be_paid - int(form.amount_paid.data)
+        timestamp = datetime.utcnow
+        fee_entry = Payment(trans_id=trans_id, payment_type=feeType, uname=uname, amount_to_be_paid=amount_to_be_paid, amount_left=amount_left, card_number=form.card_number.data, 
+                                    cvv=form.cvv.data, expiry_month=form.expiry_month.data, expiry_year=form.expiry_year.data, timestamp=timestamp)
+        db.session.add(fee_entry)
+        db.session.commit()
+        time.sleep(3)
+        flash(f'Payment Successful.', 'success')
+        return redirect(url_for('home'))
 
 if __name__ == "__main__": 
     app.run(port=5000, debug=True)

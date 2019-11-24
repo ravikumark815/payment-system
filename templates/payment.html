@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Payment Gateway</legend>
+                    <div class="form-group">
+                        {{ form.amount_paid.label(class="form-control-label")}}
+                    </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock content %}
