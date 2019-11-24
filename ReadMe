@@ -7,6 +7,8 @@ flask,
 flask-wtf
 flask-sqlalchemy
 cryptography
+flask-bcrypt
+flask-login
 
 To Run flask:
 > Open CMD prompt as administrator
