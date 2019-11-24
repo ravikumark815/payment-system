@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, url_for, flash, redirect
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, current_user, UserMixin, login_user, logout_user
+from flask_login import LoginManager, current_user, UserMixin, login_user, logout_user, login_required
 
 # Extensions
 app = Flask(__name__)
@@ -16,6 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
@@ -38,7 +39,8 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class Login(db.Model, UserMixin):
-    uname = db.Column(db.String(10), primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    uname = db.Column(db.String(10), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
 
@@ -76,6 +78,7 @@ def default():
     return render_template('default.html')
 
 @app.route("/home")
+@login_required
 def home():
     return render_template('home.html')
 
@@ -119,6 +122,11 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('default'))
+
+@app.route("/account")
+@login_required
+def account():
+    return redirect(url_for('account'))
 
 if __name__ == "__main__": 
     app.run(debug=True)
