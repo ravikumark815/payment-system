@@ -1,6 +1,68 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h1>Current Status of your Fees:</h1>
+<h1>Fees Status:</h1>
+<br>
+<br>
+<br>
+    <div class="table-responsive">
+        {% for fee in fees %}
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Fees</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Payment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Exam Fees</td>
+                        <td>{{ fee.exam_fee }}</td>
+                        <td>05 January 2020</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Lab Fees</td>
+                        <td>{{ fee.lab_fee }}</td>
+                        <td>10 December 2019</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Library Fees</td>
+                        <td>{{ fee.library_fee }}</td>
+                        <td>30 November 2019</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">4</th>
+                        <td>Stationary Fees</td>
+                        <td>{{ fee.stationary_fee }}</td>
+                        <td>25 November 2019</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">5</th>
+                        <td>Placement Fees</td>
+                        <td>{{ fee.placement_fee }}</td>
+                        <td>02 February 2020</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">6</th>
+                        <td>Club Fees</td>
+                        <td>{{ fee.club_fee }}</td>
+                        <td>22 March 2020</td>
+                        <td><button type="button" class="btn btn-primary">Pay</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endfor %}
+    </div>
 
 {% endblock %}

@@ -80,7 +80,8 @@ def default():
 @app.route("/home")
 @login_required
 def home():
-    return render_template('home.html')
+    fee = Fees.query.filter_by(uname=current_user.uname)
+    return render_template('home.html', fees=fee)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -122,11 +123,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('default'))
-
-@app.route("/account")
-@login_required
-def account():
-    return redirect(url_for('account'))
 
 if __name__ == "__main__": 
     app.run(debug=True)
