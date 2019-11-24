@@ -18,6 +18,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# HTML Forms
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
                 validators=[DataRequired(), Length(min=10, max=10)])
@@ -47,6 +48,7 @@ class PaymentForm(FlaskForm):
     expiry_year = IntegerField('CVV', validators=[DataRequired(), Length(min=4, max=4)])
     fee_type = StringField('Fees', validators=[DataRequired()])
 
+# My SQL Models
 class Login(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     uname = db.Column(db.String(10), unique=True, nullable=False)
@@ -84,6 +86,7 @@ class Payment(db.Model):
     def __repr__(self):
         return f"Login('{self.trans_id}', '{self.uname}', '{self.amount_to_be_paid}', '{self.amount_paid}', '{self.amount_left}', '{self.card_number}', '{self.cvv}', '{self.expiry_date}', '{self.time_stamp}')"
 
+# Flask Routes
 @app.route("/")
 def default():
     return render_template('default.html')
