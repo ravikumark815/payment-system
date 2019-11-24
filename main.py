@@ -45,7 +45,7 @@ class Login(db.Model, UserMixin):
     privilege = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
-        return f"Login('{self.uname}', '{self.password}')"
+        return f"Login('{self.uname}', '{self.password}', '{self.privilege}')"
 
 class Fees(db.Model):
     uname = db.Column(db.String(10), primary_key=True, nullable=False)
@@ -98,7 +98,7 @@ def register():
         if user:
             flash('Username is already registered', 'danger')
         else:
-            user = Login(uname=form.username.data, password=hashed_password)
+            user = Login(uname=form.username.data, password=hashed_password, privilege="student")
             db.session.add(user)
             db.session.commit()
             flash(f'Your account has been created', 'success')
