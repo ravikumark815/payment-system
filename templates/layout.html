@@ -20,11 +20,7 @@
     <header class="site-header">
         <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
             <div class="container">
-                {% if current_user.is_authenticated:%}
-                    <a class="navbar-brand mr-4" href="/">Fee Payment System</a>
-                {% else %}
-                    <a class="navbar-brand mr-4" href="/home">Fee Payment System</a>
-                {% endif %}
+                <a class="navbar-brand mr-4" href="/">Fee Payment System</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
                     aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -37,6 +33,10 @@
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated:%}
                             <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+                            <a class="nav-item  nav-link" href="{{ url_for('home') }}">Fees</a>
+                            {% if current_user.uname=="administrator":%}
+                                <a class="nav-item  nav-link" href="{{ url_for('stats') }}">Statistics</a>
+                            {% endif %}
                         {% else %}
                             <a class="nav-item  nav-link" href="{{ url_for('login') }}">Login</a>
                         {% endif %}

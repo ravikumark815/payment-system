@@ -22,7 +22,7 @@ login_manager.login_view = 'login'
 # HTML Forms
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
-                validators=[DataRequired(), Length(min=10, max=10)])
+                validators=[DataRequired(), Length(min=10, max=13)])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm_Password', 
                 validators=[DataRequired(), EqualTo('password')])
@@ -35,7 +35,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField('Username', 
-                validators=[DataRequired(), Length(min=10, max=10)])
+                validators=[DataRequired(), Length(min=10, max=13)])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
@@ -128,11 +128,15 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = Login.query.filter_by(uname=form.username.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            return redirect(url_for('home'))
+        print("\n\n\n\t\t",form.username.data,"\t\t\n\n\n")
+        if user:
+            if bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('home'))
+            else:
+                flash('Login Unsuccessful. Please verify password','danger')
         else:
-            flash('Login Unsuccessful. Please verify username and password','danger')
+            flash('Login Unsuccessful. Please verify username','danger')
     return render_template('login.html', title='login', form=form)
 
 @app.route("/logout")
