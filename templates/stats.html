@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if stats:%}
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">USN</th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Fees</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Card</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in stats %}
+                    <tr>
+                        <th scope="row">{{ stats.index(entry)+1 }}</th>
+                        <td>{{ entry.usn }}</td>
+                        <td>{{ entry.transaction_id }}</td>
+                        <td>{{ entry.date + entry.month + entry.year }}</td>
+                        <td>{{ entry.payment_type }}</td>
+                        <td>{{ entry.amount_paid }}</td>
+                        <td>{{ entry.card_number }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <h3> Total Amount Received in this Date Range: {{ total }}</h3>
+{% else %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Statistics</legend>
+                <div class="form-group">
+                    {{ form.from_date.label(class="form-control-label") }}
+
+                    {% if form.from_date.errors %}
+                        {{ form.from_date(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.from_date.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.from_date(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.from_month.label(class="form-control-label") }}
+                    {% if form.from_month.errors %}
+                        {{ form.from_month(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.from_month.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.from_month(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.from_year.label(class="form-control-label") }}
+                    {% if form.from_year.errors %}
+                        {{ form.from_year(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.from_year.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.from_year(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.to_date.label(class="form-control-label") }}
+
+                    {% if form.to_date.errors %}
+                        {{ form.to_date(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.to_date.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.to_date(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.to_month.label(class="form-control-label") }}
+                    {% if form.to_month.errors %}
+                        {{ form.to_month(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.to_month.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.to_month(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.to_year.label(class="form-control-label") }}
+                    {% if form.to_year.errors %}
+                        {{ form.to_year(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.to_year.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.to_year(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

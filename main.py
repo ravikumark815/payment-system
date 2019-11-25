@@ -1,10 +1,10 @@
 # Libraries
 import fps
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, DateField
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, url_for, flash, redirect
 from flask_bcrypt import Bcrypt
@@ -49,6 +49,15 @@ class PaymentForm(FlaskForm):
     expiry_year = IntegerField('CVV', validators=[DataRequired(), Length(min=4, max=4)])
     fee_type = StringField('Fees', validators=[DataRequired()])
 
+class StatisticsForm(FlaskForm):
+    from_date = IntegerField('Start Date', validators=[DataRequired(), NumberRange(min=1, max=31)])
+    from_month = IntegerField('Start Month', validators=[DataRequired(), NumberRange(min=1, max=12)])
+    from_year = IntegerField('Start Year', validators=[DataRequired(), NumberRange(min=2000, max=2020)])
+    to_date = IntegerField('End Date', validators=[DataRequired(), NumberRange(min=1, max=31)])
+    to_month = IntegerField('End Month', validators=[DataRequired(), NumberRange(min=1, max=12)])
+    to_year = IntegerField('End Year', validators=[DataRequired(), NumberRange(min=2000, max=2020)])
+    submit = SubmitField('Submit')
+
 # My SQL Models
 class Login(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,10 +78,10 @@ class Fees(db.Model):
     library_fee = db.Column(db.Integer())
 
     def __repr__(self):
-        return f"Login('{self.uname}', '{self.exam_fee}', '{self.lab_fee}', '{self.club_fee}', '{self.placement_fee}', '{self.stationary_fee}', '{self.library_fee}')"
+        return f"Fees('{self.uname}', '{self.exam_fee}', '{self.lab_fee}', '{self.club_fee}', '{self.placement_fee}', '{self.stationary_fee}', '{self.library_fee}')"
 
 class Payment(db.Model):
-    trans_id = db.Column(db.String(10), primary_key=True, nullable=False)
+    transaction_id = db.Column(db.String(10), primary_key=True, nullable=False)
     payment_type = db.Column(db.String(30), nullable=False)
     uname = db.Column(db.String(10), unique=True, nullable=False)
     amount_to_be_paid = db.Column(db.Integer())
@@ -82,10 +91,13 @@ class Payment(db.Model):
     cvv = db.Column(db.Integer())
     expiry_month = db.Column(db.Integer())
     expiry_year = db.Column(db.Integer())
-    time_stamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date = db.Column(db.Integer())
+    month = db.Column(db.Integer())
+    year = db.Column(db.Integer())
+    usn = db.Column(db.String(45))
 
     def __repr__(self):
-        return f"Login('{self.trans_id}', '{self.uname}', '{self.amount_to_be_paid}', '{self.amount_paid}', '{self.amount_left}', '{self.card_number}', '{self.cvv}', '{self.expiry_date}', '{self.time_stamp}')"
+        return f"Payment('{self.transaction_id}', '{self.payment_type}', '{self.uname}', '{self.amount_to_be_paid}', '{self.amount_paid}', '{self.amount_left}', '{self.card_number}', '{self.cvv}', '{self.expiry_month}', '{self.expiry_year}', '{self.date}', '{self.month}', '{self.year}')"
 
 # Flask Routes
 @app.route("/")
@@ -116,7 +128,9 @@ def register():
             user = Login(uname=form.username.data, password=hashed_password, privilege="student")
             db.session.add(user)
             db.session.commit()
-            user = Fees(exam_fee=0, lab_fee=0, stationary_fee=0, library_fee=0, placement_fee=0, club_fee=0)
+            user = Fees(uname=form.username.data, exam_fee=0, lab_fee=0, stationary_fee=0, library_fee=0, placement_fee=0, club_fee=0)
+            db.session.add(user)
+            db.session.commit()
             flash(f'Your account has been created', 'success')
             return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
@@ -128,15 +142,11 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = Login.query.filter_by(uname=form.username.data).first()
-        print("\n\n\n\t\t",form.username.data,"\t\t\n\n\n")
-        if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                return redirect(url_for('home'))
-            else:
-                flash('Login Unsuccessful. Please verify password','danger')
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('home'))
         else:
-            flash('Login Unsuccessful. Please verify username','danger')
+            flash('Login Unsuccessful. Please verify username and password','danger')
     return render_template('login.html', title='login', form=form)
 
 @app.route("/logout")
@@ -163,10 +173,32 @@ def payment():
         time.sleep(3)
         flash(f'Payment Successful. Redirecting to Home Page.', 'success')
     else:
-        time.sleep(3)
-        flash(f'Payment Successful. Redirecting to Home Page.', 'success')
-        # flash(f'Payment Failed. Please Try Again.', 'danger')
+        flash(f'Payment Failed. Please Try Again.', 'danger')
     return redirect(url_for('home'))
+
+@app.route("/stats", methods=['GET', 'POST'])
+@login_required
+def stats():
+    form = StatisticsForm()
+    if form.validate_on_submit():
+        uname = current_user.uname
+        pay_entry = Payment.query.filter_by(uname=uname)
+        stats = []
+        start,end = datetime(form.from_year.data, form.from_month.data, form.from_date.data), datetime(form.to_year.data, form.to_month.data, form.to_date.data)
+        dates = [start + timedelta(days=i) for i in range((end-start).days+1)]
+        for i in pay_entry:
+            if datetime(i.year, i.month, i.date) in dates:
+                stats.append(i)
+        if len(stats):
+            total = 0
+            for i in stats:
+                total += int(i.amount_paid)
+            return render_template('stats.html', stats=stats, total=total, form=form)
+        else:
+            flash(f'No Payments made in this date range', 'success')
+    else:
+        flash(f'Please enter a valid Date Range.', 'danger')
+    return render_template('stats.html', title='Statistics', form=form)
 
 if __name__ == "__main__": 
     app.run(port=5000, debug=True)
