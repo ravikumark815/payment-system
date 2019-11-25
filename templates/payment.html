@@ -1,14 +1,105 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="container">
+    <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Payment Gateway</legend>
                     <div class="form-group">
-                        {{ form.amount_paid.label(class="form-control-label")}}
+                        {{ form.amount_paid.label(class="form-control-label") }}
+                        {% if form.amount_paid.errors %}
+                            {{ form.amount_paid(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.amount_paid.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.amount_paid(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.card_name.label(class="form-control-label") }}
+                        {% if form.card_name.errors %}
+                            {{ form.card_name(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.card_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.card_name(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.card_number.label(class="form-control-label") }}
+                        {% if form.card_number.errors %}
+                            {{ form.card_number(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.card_number.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.card_number(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.cvv.label(class="form-control-label") }}
+                        {% if form.cvv.errors %}
+                            {{ form.cvv(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cvv.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cvv(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.expiry_month.label(class="form-control-label") }}
+                        {% if form.expiry_month.errors %}
+                            {{ form.expiry_month(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.expiry_month.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.expiry_month(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.expiry_year.label(class="form-control-label") }}
+                        {% if form.expiry_year.errors %}
+                            {{ form.expiry_year(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.expiry_year.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.expiry_year(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.fee_type.label(class="form-control-label") }}
+                        {% if form.fee_type.errors %}
+                            {{ form.fee_type(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.fee_type.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.fee_type(class="form-control form-control-lg") }}
+                        {% endif %}
                     </div>
             </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
         </form>
     </div>
 {% endblock content %}

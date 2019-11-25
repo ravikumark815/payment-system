@@ -1,14 +1,15 @@
 # Libraries
 import fps
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, DateField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, DateField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, NumberRange
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, url_for, flash, redirect
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, current_user, UserMixin, login_user, logout_user, login_required
+from random import randint
 
 # Extensions
 app = Flask(__name__)
@@ -42,12 +43,14 @@ class LoginForm(FlaskForm):
 
 class PaymentForm(FlaskForm):
     amount_paid = IntegerField('Amount')
-    card_name = StringField('Card Name')
+    card_name = StringField('Name of the Card Holder')
     card_number = IntegerField('Card Number')
-    cvv = IntegerField('CVV', validators=[DataRequired(), Length(min=3, max=3)])
-    expiry_month = IntegerField('CVV', validators=[DataRequired(), Length(min=1, max=2)])
-    expiry_year = IntegerField('CVV', validators=[DataRequired(), Length(min=4, max=4)])
-    fee_type = StringField('Fees', validators=[DataRequired()])
+    cvv = IntegerField('CVV', validators=[DataRequired()])
+    expiry_month = IntegerField('Card Expiry Month', validators=[DataRequired(), NumberRange(min=1, max=12)])
+    expiry_year = IntegerField('Card Expiry Year', validators=[DataRequired(), NumberRange(min=2019, max=2030)])
+    fee_type = StringField('Fee Type')
+    submit = SubmitField('Submit')
+    # fee_type = SelectField('Fees', choices=['Exam Fees','Lab Fees','Library Fees','Placement Fees','Stationary Fees','Club Fees'], validators=[DataRequired()])
 
 class StatisticsForm(FlaskForm):
     from_date = IntegerField('Start Date', validators=[DataRequired(), NumberRange(min=1, max=31)])
@@ -160,21 +163,35 @@ def payment():
     form = PaymentForm()
     if form.validate_on_submit():
         uname = current_user.uname
-        trans_id = bcrypt.generate_password_hash(str(datetime.utcnow)).decode('utf-8')
-        fee = Fees.query.filter_by(uname=uname)
-        feeType = form.fee_type.data
-        amount_to_be_paid = int(fee.feeType)
-        amount_left = amount_to_be_paid - int(form.amount_paid.data)
-        timestamp = datetime.utcnow
-        fee_entry = Payment(trans_id=trans_id, payment_type=feeType, uname=uname, amount_to_be_paid=amount_to_be_paid, amount_left=amount_left, card_number=form.card_number.data, 
-                                    cvv=form.cvv.data, expiry_month=form.expiry_month.data, expiry_year=form.expiry_year.data, timestamp=timestamp)
+        trans_id = randint(1000000000,9999999999)
+        fee = Fees.query.filter_by(uname=uname).first()
+        amount_to_be_paid = 0
+        if form.fee_type.data.lower() == 'exam':
+            amount_to_be_paid = int(fee.exam_fee)
+        elif form.fee_type.data.lower() == 'library':
+            amount_to_be_paid = int(fee.exam_fee)
+        elif form.fee_type.data.lower() == 'stationary':
+            amount_to_be_paid = int(fee.exam_fee)
+        elif form.fee_type.data.lower() == 'placement':
+            amount_to_be_paid = int(fee.exam_fee)
+        elif form.fee_type.data.lower() == 'club':
+            amount_to_be_paid = int(fee.exam_fee)
+        elif form.fee_type.data.lower() == 'lab':
+            amount_to_be_paid = int(fee.exam_fee)
+        else:
+            flash(f'Please enter valid Fees Type. (Exam/Library/Stationary/Lab/Club/Placement)', 'danger')
+        amount_left = int(amount_to_be_paid) - int(form.amount_paid.data)
+        today = date.today()
+        fee_entry = Payment(transaction_id=trans_id, payment_type=form.fee_type.data, usn=uname, amount_to_be_paid=amount_to_be_paid, amount_left=amount_left, amount_paid=form.amount_paid.data, uname='administrator', card_number=form.card_number.data, 
+                                    cvv=form.cvv.data, expiry_month=form.expiry_month.data, expiry_year=form.expiry_year.data, date=today.day, month=today.month,  year=today.year)
         db.session.add(fee_entry)
         db.session.commit()
         time.sleep(3)
         flash(f'Payment Successful. Redirecting to Home Page.', 'success')
+        return redirect(url_for('home'))
     else:
         flash(f'Payment Failed. Please Try Again.', 'danger')
-    return redirect(url_for('home'))
+    return render_template('payment.html', title='Payment', form=form)
 
 @app.route("/stats", methods=['GET', 'POST'])
 @login_required
