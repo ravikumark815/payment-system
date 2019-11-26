@@ -187,8 +187,8 @@ def payment():
         db.session.add(fee_entry)
         db.session.commit()
         time.sleep(3)
-        flash(f'Payment Successful. Redirecting to Home Page.', 'success')
-        return redirect(url_for('home'))
+        flash(f'Payment Successful.', 'success')
+        return render_template('receipt.html', data=fee_entry, title='Receipt', form=form)
     else:
         flash(f'Payment Failed. Please Try Again.', 'danger')
     return render_template('payment.html', title='Payment', form=form)
