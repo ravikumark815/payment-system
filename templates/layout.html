@@ -18,7 +18,7 @@
         <style>
             body {
                 font-family: "Lato", sans-serif;
-                padding-left: 16%;
+                padding-left: 19%;
             }
 
             .projname {
@@ -27,7 +27,7 @@
 
             .sidenav {
                 height: 100%;
-                width: 14%;
+                width: 17%;
                 position: fixed;
                 z-index: 1;
                 top: 0;
@@ -40,7 +40,7 @@
             .sidenav a {
                 padding: 6px 8px 6px 16px;
                 text-decoration: none;
-                font-size: 25px;
+                font-size: 18px;
                 color: #818181;
                 display: block;
             }
@@ -60,7 +60,7 @@
             .main {
                 margin-left: 160px;
                 /* Same as the width of the sidenav */
-                font-size: 28px;
+                font-size: 20px;
                 /* Increased text to enable scrolling */
                 padding: 0px 10px;
             }
@@ -78,9 +78,7 @@
         <div class="sidenav">
             <img src="/static/logo.png" class="img-circle">
             <br>
-            <br>
             <h2 class="projname">FEE PAYMENT SYSTEM</h2>
-            <br>
             <br>
             <br>
             <a href="{{ url_for('home') }}">View Fees</a>
@@ -88,7 +86,7 @@
             <a href="{{ url_for('stats') }}">Payment Statistics</a>
             <a href="{{ url_for('cred') }}">Password Reset</a>
             <a href="{{ url_for('login') }}">Login/Register</a>
-            <a class="logout_sidebar_button" href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
         </div>
     </header>
 
