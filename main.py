@@ -22,11 +22,9 @@ login_manager.login_view = 'login'
 
 # HTML Forms
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', 
-                validators=[DataRequired(), Length(min=10, max=13)])
+    username = StringField('Username', validators=[DataRequired(), Length(min=10, max=13)])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm_Password', 
-                validators=[DataRequired(), EqualTo('password')])
+    confirm_password = PasswordField('Confirm_Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
     def validate_uname(self, uname):
@@ -35,8 +33,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Username is already registered. Please login with the same.')
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', 
-                validators=[DataRequired(), Length(min=10, max=13)])
+    username = StringField('Username', validators=[DataRequired(), Length(min=10, max=13)])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
@@ -59,6 +56,12 @@ class StatisticsForm(FlaskForm):
     to_date = IntegerField('End Date', validators=[DataRequired(), NumberRange(min=1, max=31)])
     to_month = IntegerField('End Month', validators=[DataRequired(), NumberRange(min=1, max=12)])
     to_year = IntegerField('End Year', validators=[DataRequired(), NumberRange(min=2000, max=2020)])
+    submit = SubmitField('Submit')
+
+class AccountResetForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=10, max=13)])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm_Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Submit')
 
 # My SQL Models
@@ -134,7 +137,12 @@ def register():
         if user:
             flash('Username is already registered', 'danger')
         else:
-            user = Login(uname=form.username.data, password=hashed_password, privilege="student")
+            id = 0
+            privilege="student"
+            if form.username.data.lower()=="administrator":
+                id = 1
+                privilege="administrator"
+            user = Login(uname=form.username.data, password=hashed_password, privilege=privilege, id=id)
             db.session.add(user)
             db.session.commit()
             user = Fees(uname=form.username.data, exam_fee=0, lab_fee=0, stationary_fee=0, library_fee=0, placement_fee=0, club_fee=0)
@@ -157,6 +165,28 @@ def login():
         else:
             flash('Login Unsuccessful. Please verify username and password','danger')
     return render_template('login.html', title='login', form=form)
+
+@app.route("/cred", methods=['GET', 'POST'])
+@login_required
+def cred():
+    form = AccountResetForm()
+    if current_user.is_authenticated:
+        if current_user.uname.lower()=='administrator':
+            if form.validate_on_submit():
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                user = Login.query.filter_by(uname=form.username.data).first()
+                if user:
+                    user = Login(uname=form.username.data, password=hashed_password, privilege="student")
+                    user.password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                    user.password = "asknacksnlsdc"
+                    db.session.commit()
+                    flash('Password has been reset successfully', 'success')
+                else:
+                    flash('Invalid Username. Please Verify', 'danger')
+        else:
+            flash('Only Administrator has privileges for this operation.','danger')
+            return redirect(url_for('home'))
+    return render_template('cred.html', title='Account Reset', form = form)
 
 @app.route("/logout")
 def logout():
@@ -203,24 +233,27 @@ def payment():
 @login_required
 def stats():
     form = StatisticsForm()
-    if form.validate_on_submit():
-        uname = current_user.uname
-        pay_entry = Payment.query.filter_by(uname=uname)
-        stats = []
-        start,end = datetime(form.from_year.data, form.from_month.data, form.from_date.data), datetime(form.to_year.data, form.to_month.data, form.to_date.data)
-        dates = [start + timedelta(days=i) for i in range((end-start).days+1)]
-        for i in pay_entry:
-            if datetime(i.year, i.month, i.date) in dates:
-                stats.append(i)
-        if len(stats):
-            total = 0
-            for i in stats:
-                total += int(i.amount_paid)
-            return render_template('stats.html', stats=stats, total=total, form=form)
+    if current_user.is_authenticated:
+        if current_user.uname.lower()=='administrator':
+            if form.validate_on_submit():
+                uname = current_user.uname
+                pay_entry = Payment.query.filter_by(uname=uname)
+                stats = []
+                start,end = datetime(form.from_year.data, form.from_month.data, form.from_date.data), datetime(form.to_year.data, form.to_month.data, form.to_date.data)
+                dates = [start + timedelta(days=i) for i in range((end-start).days+1)]
+                for i in pay_entry:
+                    if datetime(i.year, i.month, i.date) in dates:
+                        stats.append(i)
+                if len(stats):
+                    total = 0
+                    for i in stats:
+                        total += int(i.amount_paid)
+                    return render_template('stats.html', stats=stats, total=total, form=form)
+                else:
+                    flash(f'No Payments made in this date range', 'success')
         else:
-            flash(f'No Payments made in this date range', 'success')
-    else:
-        flash(f'Please enter a valid Date Range.', 'danger')
+            flash('Only Administrator has privileges for this operation.','danger')
+            return redirect(url_for('home'))
     return render_template('stats.html', title='Statistics', form=form)
 
 if __name__ == "__main__": 
