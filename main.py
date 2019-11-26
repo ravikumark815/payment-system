@@ -113,6 +113,12 @@ def home():
     fee = Fees.query.filter_by(uname=current_user.uname)
     return render_template('home.html', fees=fee)
 
+@app.route("/recent")
+@login_required
+def recent():
+    pay = Payment.query.filter_by(usn=current_user.uname)
+    return render_template('recent.html', pay=pay)
+
 @login_manager.user_loader
 def load_user(user_id):
     return Login.query.get(user_id)

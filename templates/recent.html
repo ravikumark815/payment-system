@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Previous Payments:</h1>
+<br>
+<br>
+{% if pay:%}
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">USN</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Fees</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Card</th>
+                    <th scope="col">Transaction ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in pay %}
+                    <tr>
+                        <td>{{ entry.usn }}</td>
+                        <td>{{ entry.date }}/{{ entry.month }}/{{ entry.year }}</td>
+                        <td>{{ entry.payment_type }}</td>
+                        <td>{{ entry.amount_paid }}</td>
+                        <td>{{ entry.card_number }}</td>
+                        <td>{{ entry.transaction_id }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endif %}
+{% endblock %}
