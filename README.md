@@ -12,7 +12,7 @@
 
 ## Plan:
 
-![alt text](https://github.com/ravikumark815/fee-payment-system/blob/master/er.png)
+![alt text](https://github.com/ravikumark815/fee-payment-system/blob/dev/ravi/er.png)
 
 ## Requirements
 **PIP packages installed:**
@@ -30,8 +30,8 @@
 
 **Screenshots of MySQL DB**
 
-![alt text](https://github.com/ravikumark815/fee-payment-system/blob/master/logindb.png)
+![alt text](https://github.com/ravikumark815/fee-payment-system/blob/dev/ravi/logindb.png)
 
-![alt text](https://github.com/ravikumark815/fee-payment-system/blob/master/feedb.png)
+![alt text](https://github.com/ravikumark815/fee-payment-system/blob/dev/ravi/feedb.png)
 
-![alt text](https://github.com/ravikumark815/fee-payment-system/blob/master/paydb.png)
+![alt text](https://github.com/ravikumark815/fee-payment-system/blob/dev/ravi/paydb.png)
